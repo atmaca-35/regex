@@ -83,36 +83,51 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    function highlightWords(text) {
-        const specialWords = {
-            '01': 'Ön Türkçe',
-            '02': 'Moğolca',
-            '03': 'Eski Anadolu Türkçesi',
-            '04': 'Osmanlı Türkçesi',
-            '05': 'Türkiye Türkçesi',
-            '06': 'Azerbaycan Türkçesi',
-            '07': 'Kırgız Türkçesi',
-            '08': 'Başkurt Türkçesi',
-            '09': 'Kazak Türkçesi',
-            '10': 'Kırgız Türkçesi',
-            '11': 'Özbek Türkçesi',
-            '12': 'Tatar Türkçesi',
-            '13': 'Türkmen Türkçesi',
-            '14': 'Uygur Türkçesi',
-            '15': 'Çuvaş Türkçesi'
-        };
+function highlightWords(text) {
+    const specialWords = {
+        '01': 'Ön Türkçe',
+        '02': 'Moğolca',
+        '03': 'Eski Anadolu Türkçesi',
+        '04': 'Osmanlı Türkçesi',
+        '05': 'Türkiye Türkçesi',
+        '06': 'Azerbaycan Türkçesi',
+        '07': 'Kırgız Türkçesi',
+        '08': 'Başkurt Türkçesi',
+        '09': 'Kazak Türkçesi',
+        '10': 'Kırgız Türkçesi',
+        '11': 'Özbek Türkçesi',
+        '12': 'Tatar Türkçesi',
+        '13': 'Türkmen Türkçesi',
+        '14': 'Uygur Türkçesi',
+        '15': 'Çuvaş Türkçesi'
+    };
 
-        // Önce metindeki tüm kelimeleri italik yap
-        text = text.replace(/([a-zıüğşçöİĞÜŞÇÖ]+)/gi, `<i>$1</i>`);
-
-        // Ardından özel kelimeleri bul ve kalın yap
-        for (const [key, value] of Object.entries(specialWords)) {
-            const regex = new RegExp(`\\b${key}\\b`, 'gi');
-            text = text.replace(regex, `<b>${value}</b>`);
-        }
-
-        return text;
+    // Metni işaretleyici bir etiket ile geçici olarak değiştir
+    let markedText = text;
+    for (const [key, value] of Object.entries(specialWords)) {
+        const regex = new RegExp(`\\b${key}\\b`, 'gi');
+        markedText = markedText.replace(regex, (match) => `[SPECIAL:${key}]`);
     }
+
+    // Özel kelimeler işaretlendikten sonra, ilk gelen kelimeyi italik yap
+    let resultText = markedText;
+    for (const [key, value] of Object.entries(specialWords)) {
+        const regex = new RegExp(`\\[SPECIAL:${key}\\]\\s+(\\S+)`, 'gi');
+        resultText = resultText.replace(regex, (match, p1) => `<b>${value}</b> <i>${p1}</i>`);
+    }
+
+    // Geçici işaretleyici etiketleri kaldır
+    resultText = resultText.replace(/\[SPECIAL:\w+\]/g, '');
+
+    return resultText;
+}
+
+
+
+
+
+
+
 
     function updateSearchBoxPlaceholder(query) {
         const queryLower = normalizeTurkish(query);
